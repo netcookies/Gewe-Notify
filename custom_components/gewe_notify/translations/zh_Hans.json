@@ -1,0 +1,24 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "请输入 Gewe Notify 的 API URL",
+                "data": {
+                    "api_url": "API 地址"
+                }
+            },
+            "confirm": {
+                "description": "请扫描以下二维码完成登录：\n\n![QR Code]({qr_image_url})\n\n扫描完成后点击确认。\n如果扫码不成功，点提交会刷新二维码",
+                "title": "确认扫码"
+            }
+        },
+        "error": {
+            "token_fetch_failed": "获取 Token 失败，请检查 API URL。",
+            "qr_code_failed": "生成二维码失败，请稍后再试。",
+            "qr_code_save_failed": "保存二维码图片失败，请检查配置。",
+            "login_failed": "断线重连失败，请点击提交扫描二维码登录。",
+            "scan_qrcode_failed": "扫码登录失败，请点击提交刷新二维码，再重新扫描登录。"
+        }
+    }
+}
+
