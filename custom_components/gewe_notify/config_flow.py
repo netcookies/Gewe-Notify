@@ -31,6 +31,7 @@ class GeweConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.api = None
         self.relogin_flag = False
         self.scaned_flag = False
+        self.reconfigure_flag = False
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step where the user inputs the API URL."""
@@ -127,7 +128,7 @@ class GeweConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 nickname = login_data["nickName"]
                 self.wxid = login_data["loginInfo"]["wxid"]
                 await self._save_token_to_file(self.token, self.app_id, self.wxid)
-                if self.relogin_flag:
+                if self.relogin_flag and self.reconfigure_flag:
                     # Update the existing config entry
                     current_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
                     if current_entry:
@@ -196,19 +197,8 @@ class GeweConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.api.logout(self.token, self.app_id)
 
             self.relogin_flag = True
+            self.reconfigure_flag = True
 
-            # 2. Remove old entities
-            #entity_registry = get_entity_registry(self.hass)
-            #entities_to_remove = [
-            #    entity.entity_id
-            #    for entity in entity_registry.entities.values()
-            #    if entity.platform == DOMAIN
-            #]
-
-            #for entity_id in entities_to_remove:
-            #    entity_registry.async_remove(entity_id)
-
-            # Initiate re-login process
             return await self.async_step_user()
         except Exception as e:
             _LOGGER.error(f"Reconfiguration failed: {e}")
