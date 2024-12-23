@@ -1,7 +1,7 @@
 {
   "domain": "gewe_notify",
   "name": "Gewe Notify",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "documentation": "https://github.com/netcookies/gewe_notify",
   "dependencies": [],
   "requirements": [],
