@@ -13,6 +13,17 @@ class GeweAPI:
         self.session = session
         self.hass = hass
 
+    def truncate_dict(self, d, max_items=10):
+        """ 截断字典，只保留前 max_items 个键值对 """
+        truncated = dict(list(d.items())[:max_items])
+        return str(truncated) + ('...' if len(d) > max_items else '')
+
+    def truncate_string(self, s, max_length=100):
+        """ 截断字符串，确保其长度不超过 max_length """
+        if isinstance(s, str):
+            return s[:max_length] + ('...' if len(s) > max_length else '')
+        return str(s)
+
     async def _handle_offline_error(self, error_message):
         """Trigger a persistent notification prompting reconfiguration."""
         _LOGGER.error(f"Reconfiguration required: {error_message}")
