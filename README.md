@@ -1,11 +1,12 @@
 # Gewe-Notify
 
-Gewe-Notify 是一个基于 Home Assistant HACS 的插件，允许用户通过 **Home Assistant** 系统接收来自 **Gewechat** 后端 API 的实时通知。该插件使得 Home Assistant 用户能够通过多个设备接收通知，支持各种类型的通知服务。
+Gewe-Notify 是一个基于 Home Assistant HACS 的插件，允许用户通过 **Home Assistant** 系统调用 **Gewechat** 后端 API 的发送微信。
 
 ## 功能特点
 
-- 支持通过 Home Assistant 接收 **Gewechat** 后端 API 的通知
-- 可以自定义通知设置，选择不同的通知类型
+- 支持通过 Home Assistant 发送微信
+- 支持 **Action --> Notify** 动作
+- 支持 **微信在线状态实体**,可用于自动化检测微信是否在线
 - 轻量、易于安装和配置
 - 适用于使用 **Home Assistant** 和 **Gewechat** 的用户
 
@@ -15,6 +16,19 @@ Gewe-Notify 是一个基于 Home Assistant HACS 的插件，允许用户通过 *
 
 - 确保你已安装 [Home Assistant](https://www.home-assistant.io/) 并已配置好 HACS（Home Assistant Community Store）。
 - 本插件依赖 **Gewechat** 后端 API，请参阅 [Gewechat 部署文档](https://github.com/Devo919/Gewechat) 进行配置。
+- **Gewechat** 是通过模拟一台iPad设备, 而微信只支持一台iPad登录,所以....
+
+### 插图
+
+1. 添加集成或重新配置时支持扫码登录
+![](images/1.png)
+2. 搭配卡片使用搜索userName(wxid)
+![](images/2.png)
+3. 调用 notify 发送微信
+![](images/3.png)
+
+
+# TL;DR
 
 ### 安装插件
 
