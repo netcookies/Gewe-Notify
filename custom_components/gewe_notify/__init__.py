@@ -125,8 +125,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # 取消注册服务
     hass.services.async_remove(DOMAIN, "fetch_contacts")
 
-    # 卸载平台
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    # 卸载非 NOTIFY 平台
+    unload_ok = await hass.config_entries.async_unload_platforms(
+         entry, [platform for platform in PLATFORMS if platform != Platform.NOTIFY]
+    )
     if unload_ok:
         hass.data[DOMAIN].pop("api", None)
         hass.data[DOMAIN].pop("api_view", None)
