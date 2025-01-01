@@ -38,7 +38,7 @@ class GeweNotifyService(BaseNotificationService):
         data = kwargs.get("data", {}) or {}
         message_type = data.get("message_type", "text")  # 默认为文本消息
         file_url = data.get("file_url", None)
-        image_url = data.get("image_url", None)
+        img_url = data.get("img_url", None)
         ats = data.get("ats", None)
         voice_url = data.get("voice_url", None)
         video_url = data.get("video_url", None)
@@ -55,7 +55,7 @@ class GeweNotifyService(BaseNotificationService):
                 title=title,  # 标题（可选）
                 ats=ats,  # @ 用户（可选）
                 file_url=file_url,  # 文件 URL（可选）
-                image_url=image_url,  # 图片 URL（可选）
+                img_url=img_url,  # 图片 URL（可选）
                 voice_url=voice_url,  # 语音 URL（可选）
                 video_url=video_url,  # 视频 URL（可选）
                 video_duration=video_duration,  # 视频时长（可选）

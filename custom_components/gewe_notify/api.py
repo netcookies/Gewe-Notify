@@ -169,12 +169,12 @@ class GeweAPI:
         _LOGGER.debug(f"Sending file message to {to_wxid} with file: {file_name}.")
         return await self._api_post(url, headers, payload, "微信已离线，无法发送文件消息")
 
-    async def send_image_message(self, token, app_id, to_wxid, image_url):
+    async def send_image_message(self, token, app_id, to_wxid, img_url):
         """Send an image message."""
         url = f"{self.api_url}/v2/api/message/postImage"
         headers = {"X-GEWE-TOKEN": token, "Content-Type": "application/json"}
-        payload = {"appId": app_id, "toWxid": to_wxid, "imageUrl": image_url}
-        _LOGGER.debug(f"Sending image message to {to_wxid} with image URL: {image_url}.")
+        payload = {"appId": app_id, "toWxid": to_wxid, "imgUrl": img_url}
+        _LOGGER.debug(f"Sending image message to {to_wxid} with image URL: {img_url}.")
         return await self._api_post(url, headers, payload, "微信已离线，无法发送图片消息")
 
     async def send_voice_message(self, token, app_id, to_wxid, voice_url, voice_duration):
@@ -216,8 +216,8 @@ class GeweAPI:
             return await self.send_file_message(token, app_id, to_wxid, file_url, file_name)
         
         elif message_type == 'image':
-            image_url = kwargs.get('image_url')
-            return await self.send_image_message(token, app_id, to_wxid, image_url)
+            img_url = kwargs.get('img_url')
+            return await self.send_image_message(token, app_id, to_wxid, img_url)
         
         elif message_type == 'voice':
             voice_url = kwargs.get('voice_url')
