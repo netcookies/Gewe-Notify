@@ -116,11 +116,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     _LOGGER.debug("Unloading Gewe Notify integration with entry: %s", entry.as_dict())
 
-    api = hass.data[DOMAIN].get("api")
-    if api:
-        token = entry.data.get(CONF_GEWE_TOKEN)
-        app_id = entry.data.get(CONF_APP_ID)
-        await api.logout(token, app_id)
+    #api = hass.data[DOMAIN].get("api")
+    #if api:
+    #    token = entry.data.get(CONF_GEWE_TOKEN)
+    #    app_id = entry.data.get(CONF_APP_ID)
+    #    await api.logout(token, app_id)
 
     # 取消注册服务
     hass.services.async_remove(DOMAIN, "fetch_contacts")
