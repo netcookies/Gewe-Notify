@@ -35,7 +35,7 @@ class GeweNotifyService(BaseNotificationService):
         title = kwargs.get("title", None)
 
         # 从 data 中获取额外的参数
-        data = kwargs.get("data", {})
+        data = kwargs.get("data", {}) or {}
         message_type = data.get("message_type", "text")  # 默认为文本消息
         file_url = data.get("file_url", None)
         image_url = data.get("image_url", None)
@@ -51,7 +51,7 @@ class GeweNotifyService(BaseNotificationService):
                 self.appid,
                 to_wxid,
                 message_type,  # 消息类型
-                message=message,  # 必须的消息内容
+                content=message,  # 必须的消息内容
                 title=title,  # 标题（可选）
                 ats=ats,  # @ 用户（可选）
                 file_url=file_url,  # 文件 URL（可选）
