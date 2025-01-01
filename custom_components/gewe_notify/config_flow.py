@@ -269,6 +269,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         self.qr_image_url = None
         self.api = None
         self.scaned_flag = False
+        self.option_flag = False
  
     async def async_step_init(self, user_input=None):
         """Manage the options."""
@@ -289,13 +290,15 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             session = async_get_clientsession(self.hass)
             self.api = GeweAPI(self.hass, self.api_url, session)
 
-        try:
-            # Logout the user
-            if self.token and self.app_id:
-                await self.api.logout(self.token, self.app_id)
-        except Exception as e:
-            _LOGGER.error(f"OptionsFlow failed: {e}")
-            errors["base"] = "optionsflow_failed"
+        if not self.option_flag:
+            try:
+                # Logout the user
+                if self.token and self.app_id:
+                    await self.api.logout(self.token, self.app_id)
+                    self.option_flag = True
+            except Exception as e:
+                _LOGGER.error(f"OptionsFlow failed: {e}")
+                errors["base"] = "optionsflow_failed"
 
         if not self.scaned_flag:
             # Step 2: 检查 QR Code 或登录状态
