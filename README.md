@@ -41,7 +41,7 @@ Gewe-Notify 是一个基于 Home Assistant HACS 的插件，允许用户通过 *
 Gewe-Notify 插件需要配合 **Gewechat** 后端 API 使用。请按照以下步骤部署和配置 **Gewechat** 后端：
 
 1. 根据 [Gewechat 配置指南](https://github.com/Devo919/Gewechat) 完成后端部署。
-2. docker 稳定运行后访问 http://{docker_ip}:2531，看到**欢迎使用gewe后台管理框架。**就搞定了。
+2. docker 稳定运行后访问`http://{docker_ip}:2531`，看到 **欢迎使用gewe后台管理框架** 就搞定了。
 
 ## 使用方法
 
