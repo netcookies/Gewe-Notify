@@ -21,6 +21,10 @@
             "scan_qrcode_failed": "扫码登录失败，请点击提交刷新二维码，再重新扫描登录。",
             "config_entry_not_found": "未找到配置文件！",
             "reconfiguration_failed": "重新配置失败！"
+        },
+        "reason": {
+            "reconfigured_successfully": "重新配置成功!",
+            "config_entry_not_found": "未找到配置文件！"
         }
     },
     "options": {
@@ -35,13 +39,33 @@
             "qr_code_failed": "生成二维码失败，请稍后再试。",
             "qr_code_save_failed": "保存二维码图片失败，请检查配置。",
             "scan_qrcode_failed": "扫码登录失败，请点击提交刷新二维码，再重新扫描登录。"
+        },
+        "reason": {
+            "options_successfully": "重新配置成功!"
         }
     },
-    "reason": {
-        "reconfigured_successfully": "重新配置成功!",
-        "config_entry_not_found": "未找到配置文件！",
-        "options_successfully": "重新配置成功!"
+    "services": {
+        "fetch_contacts": {
+            "name": "获取联系人",
+            "description": "获取通讯录数据, 并保存在.storage/gewe_contacts.json里。本操作为耗时操作,10分钟内重复执行只会更新一次,更新完成后会有通知。"
+        },
+        "notify": {
+            "name": "发送通知",
+            "description": "通过Gewe微信发送通知消息",
+            "fields": {
+                "message": {
+                    "name": "消息内容(必填)",
+                    "description": "要发送的消息内容(仅文本消息有效,其他请随便填)"
+                },
+                "title": {
+                    "name": "标题(不用填)",
+                    "description": "消息标题(不用填)"
+                },
+                "target": {
+                    "name": "目标(必填)",
+                    "description": "接收消息的用户ID或群组ID。只接收一个人作为接收人,接收人的Id可以在.storage/gewe_contacts.json里找。"
+                }
+            }
+        }
     }
 }
-
-
