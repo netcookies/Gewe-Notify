@@ -22,7 +22,7 @@
             "config_entry_not_found": "未找到配置文件！",
             "reconfiguration_failed": "重新配置失败！"
         },
-        "reason": {
+        "abort": {
             "reconfigured_successfully": "重新配置成功!",
             "config_entry_not_found": "未找到配置文件！"
         }
@@ -40,7 +40,7 @@
             "qr_code_save_failed": "保存二维码图片失败，请检查配置。",
             "scan_qrcode_failed": "扫码登录失败，请点击提交刷新二维码，再重新扫描登录。"
         },
-        "reason": {
+        "abort": {
             "options_successfully": "重新配置成功!"
         }
     },
