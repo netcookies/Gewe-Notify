@@ -41,11 +41,16 @@ Gewe-Notify 是一个基于 Home Assistant HACS 的插件，允许用户通过 *
 Gewe-Notify 插件需要配合 **Gewechat** 后端 API 使用。请按照以下步骤部署和配置 **Gewechat** 后端：
 
 1. 根据 [Gewechat 配置指南](https://github.com/Devo919/Gewechat) 完成后端部署。
+2. docker 稳定运行后访问 http://{docker_ip}:2531，看到**欢迎使用gewe后台管理框架。**就搞定了。
 
 ## 使用方法
 
 1. 在 Home Assistant 中，进入插件设置页面，找到 **Gewe-Notify** 插件。
-2. 配置 Gewechat API 的地址。
+2. 配置 Gewechat API 的地址。ex:  
+```
+# 假设你的容器 ip是192.168.0.2
+http://192.168.0.2:2531
+```
 3. 首次运行请执行 **Action --> gewe.fetch_contacts**, 可搭配`https://github.com/netcookies/gewe-notify-card`卡片查找target值
 4. 在 Action 中找到**notify.gewe_notify**填入target, 默认消息类型是文本(text), message是必填字段, 但仅在文本类型时有效, 其他类型时请随意填写, 不为空就行, 支持的消息类型见下表。
 
