@@ -1,0 +1,94 @@
+# .github/workflows/release.yml
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'custom_components/gewe_notify/manifest.json'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整历史记录用于生成changelog
+          
+      - name: Get version from manifest.json
+        id: version
+        run: |
+          VERSION=$(jq -r .version custom_components/gewe_notify/manifest.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install conventional-changelog
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          npm install -g conventional-changelog-cli
+
+      - name: Generate changelog
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          # 获取上一个tag
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            # 如果没有之前的tag，则获取所有commit
+            conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+          else
+            # 获取从上一个tag到现在的commit
+            conventional-changelog -p angular -i CHANGELOG.md -s
+          fi
+          
+          # 读取新生成的changelog内容用于release notes
+          CHANGELOG_CONTENT=$(cat CHANGELOG.md)
+          echo "CHANGELOG_CONTENT<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Commit changelog
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add CHANGELOG.md
+          git commit -m "docs: update changelog for v${{ steps.version.outputs.version }}" || echo "No changes to commit"
+          git push
+
+      - name: Create tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
+
+      - name: Create Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "v${{ steps.version.outputs.version }}"
+          name: "Release v${{ steps.version.outputs.version }}"
+          body: |
+            ## Changes in v${{ steps.version.outputs.version }}
+            
+            ${{ env.CHANGELOG_CONTENT }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
