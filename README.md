@@ -52,7 +52,16 @@ Gewe-Notify 插件需要配合 **Gewechat** 后端 API 使用。请按照以下�
 http://192.168.0.2:2531
 ```
 3. 首次运行请执行 **Action --> gewe.fetch_contacts**, 可搭配`https://github.com/netcookies/gewe-notify-card`卡片查找target值
-4. 在 Action 中找到**notify.gewe_notify**填入target, 默认消息类型是文本(text), message是必填字段, 但仅在文本类型时有效, 其他类型时请随意填写, 不为空就行, 支持的消息类型见下表。
+4. 在 Action 中找到**notify.gewe_notify**填入target, 默认消息类型是文本(text), message是必填字段, 但仅在文本类型时有效, 其他类型时请随意填写, 不为空就行, 支持的消息类型见下表。ex:
+```
+action: notify.gewe_notify
+data:
+  data:
+    message_type: image
+    img_url: https://dummyimage.com/300x300
+  target: someones_wxid
+  message: 这是一个图片消息（图片类型没有message 参数所以无效，但message 是Notify 组件的必填项）
+```
 
 ### 支持的消息类型及所需参数
 
