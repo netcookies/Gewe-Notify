@@ -1,9 +1,4 @@
-import os
 import logging
-import json
-import base64
-import random
-import aiofiles
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
@@ -56,7 +51,7 @@ class GeweConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # 如果之前已读取 token，不再重复读取
         if not self.token:
-            self.token, self.app_id, self.wxid = await self._get_token_from_file()
+            self.token, self.app_id, self.wxid = await self.api.get_token_from_file()
             # Step 1: 获取 token
             if not self.token:
                 self.token = await self.api.get_token()
@@ -181,7 +176,6 @@ class GeweConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.api_url = current_entry.data.get(CONF_API_URL)
             self.token = current_entry.data.get(CONF_GEWE_TOKEN)
             self.app_id = current_entry.data.get(CONF_APP_ID)
-            self.app_id = current_entry.data.get(CONF_APP_ID)
             self.wxid = current_entry.data.get(CONF_WXID)
         else:
             _LOGGER.error("Reconfigure failed: No existing config entry found.")
@@ -214,46 +208,6 @@ class GeweConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle options flow for the config entry."""
         return OptionsFlowHandler()
 
-    async def _get_token_from_file(self):
-        """Get the token, app_id, and wxid from the file stored in .storage."""
-        token_file_path = os.path.join(self.hass.config.path(".storage"), "gewe_token.json")
-        if os.path.exists(token_file_path):
-            try:
-                async with aiofiles.open(token_file_path, "r") as file:
-                    token_data = json.loads(await file.read())
-                    return token_data.get("token"), token_data.get("app_id"), token_data.get("wxid")
-            except Exception as e:
-                _LOGGER.error(f"Failed to read token from file: {e}")
-        return None, None, None
-
-    async def _save_token_to_file(self, token, app_id, wxid):
-        """Save the token, app_id, and wxid to a file in .storage."""
-        token_file_path = os.path.join(self.hass.config.path(".storage"), "gewe_token.json")
-        try:
-            async with aiofiles.open(token_file_path, "w") as file:
-                await file.write(json.dumps({
-                    "token": token,
-                    "app_id": app_id,
-                    "wxid": wxid
-                }))
-        except Exception as e:
-            _LOGGER.error(f"Failed to save token to file: {e}")
-
-    async def _save_qr_code_to_file(self, qr_code_base64):
-        """Save QR code image to the www directory and return its URL."""
-        www_path = self.hass.config.path("www")
-        os.makedirs(www_path, exist_ok=True)
-        img_path = os.path.join(www_path, "gewe_qr_code.jpg")
-        random_number = random.randint(1000,9999)
-        try:
-            img_data = base64.b64decode(qr_code_base64.split(",", 1)[-1])
-            async with aiofiles.open(img_path, "wb") as file:
-                await file.write(img_data)
-            return f"/local/gewe_qr_code.jpg?v={random_number}"
-        except Exception as e:
-            _LOGGER.error(f"Failed to save QR code image: {e}")
-            return None
- 
  # 处理选项流的类
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options flow for component configuration."""
@@ -277,7 +231,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         # 从 config_entry 的 data 中提取之前保存的数据
         self.api_url = self.config_entry.data.get(CONF_API_URL)
         self.token = self.config_entry.data.get(CONF_GEWE_TOKEN)
-        self.app_id = self.config_entry.data.get(CONF_APP_ID)
         self.app_id = self.config_entry.data.get(CONF_APP_ID)
         self.wxid = self.config_entry.data.get(CONF_WXID)
         return await self.async_step_confirm()

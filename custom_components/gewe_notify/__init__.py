@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import asyncio
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import Platform, CONF_NAME
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -61,6 +62,77 @@ async def fetch_contacts_formated_service(hass: HomeAssistant, entry: ConfigEntr
     except Exception as e:
         _LOGGER.error(f"Error in fetch_contacts_formated_service: {e}")
 
+async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall):
+    """same function of option flow"""
+
+    uuid = None
+    qr_image_url = None
+    scaned_flag = False
+    option_flag = False
+    retries = 0
+    # 从 config_entry 的 data 中提取之前保存的数据
+    api_url = entry.data.get(CONF_API_URL)
+    token = entry.data.get(CONF_GEWE_TOKEN)
+    app_id = entry.data.get(CONF_APP_ID)
+    wxid = entry.data.get(CONF_WXID)
+    api = hass.data[DOMAIN].get("api")
+
+    # Logout the user
+    if token and app_id:
+        await api.logout(token, app_id)
+
+    # Step 2: 检查 QR Code 或登录状态
+    qr_data = await api.get_login_qr(self.token, self.app_id)
+    if qr_data:
+        app_id = qr_data["appId"]
+        uuid = qr_data["uuid"]
+        qr_code_base64 = qr_data["qrImgBase64"]
+
+        # 保存 QR Code
+        qr_image_url = await api.save_qr_code_to_file(qr_code_base64)
+        if qr_image_url:
+            _LOGGER.debug(f"QR Code saved and accessible at: {qr_image_url}")
+            #return await self.async_step_confirm()
+            scaned_flag = True
+        else:
+            _LOGGER.debug("QR code save failed.")
+            return False
+    else:
+        _LOGGER.debug("QR code fetch failed.")
+        return False
+
+    while scaned_flag and retries < 36:
+        _LOGGER.debug(f"Checking login QR code: {qr_image_url}")
+        login_data = await api.check_login(token, app_id, uuid)
+        if login_data.get("loginInfo") and login_data["loginInfo"].get("wxid"):
+            nickname = login_data["nickName"]
+            wxid = login_data["loginInfo"]["wxid"]
+            await api.save_token_to_file(token, app_id, wxid)
+            # 更新配置后，重新加载集成
+            config = dict(entry.data)
+            config.update({
+                CONF_GEWE_TOKEN: token,
+                CONF_APP_ID: app_id,
+                CONF_WXID: wxid
+                })
+            # 更新 token
+            await hass.config_entries.async_update_entry(entry, data=config)
+            await hass.config_entries.async_reload(entry.entry_id)
+            _LOGGER.debug("Update entry (options)!!")
+            persistent_notification_data = {
+                "title": "Gewe 登录成功",
+                "message": f"您的账号{wxid}已登录成功。",
+                "notification_id": "gewe_notify_loggin_successful"
+            }
+            # 调用 Home Assistant 服务发送持久化通知
+            await hass.services.async_call(
+                "persistent_notification", "create", persistent_notification_data
+            )
+        else:
+            scaned_flag = False
+        retries += 1
+        await asyncio.sleep(5)
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Gewe Notify integration as a config entry."""
     _LOGGER.debug("Setting up Gewe Notify integration with entry: %s", entry.as_dict())
@@ -86,8 +158,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def fetch_contacts_service_wrapper(call: ServiceCall):
         await fetch_contacts_formated_service(hass, entry, call)
 
+    async def relogin_service_wrapper(call: ServiceCall):
+        await relogin_formated_service(hass, entry, call)
+
     # 注册自定义服务
     hass.services.async_register( DOMAIN, "fetch_contacts", fetch_contacts_service_wrapper)
+    hass.services.async_register( DOMAIN, "relogin", relogin_service_wrapper)
     _LOGGER.debug("Action of Gewe Notify regeisted.")
 
     # Notify doesn't support config entry setup yet, load with discovery for now
@@ -124,6 +200,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # 取消注册服务
     hass.services.async_remove(DOMAIN, "fetch_contacts")
+    hass.services.async_remove(DOMAIN, "relogin")
 
     # 卸载非 NOTIFY 平台
     unload_ok = await hass.config_entries.async_unload_platforms(

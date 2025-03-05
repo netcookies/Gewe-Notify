@@ -1,7 +1,11 @@
-
 import aiohttp
 import asyncio
 import logging
+import os
+import base64
+import random
+import aiofiles
+import json
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -365,3 +369,16 @@ class GeweAPI:
                 }))
         except Exception as e:
             _LOGGER.error(f"Failed to save token to file: {e}")
+
+    async def get_token_from_file(self):
+        """Get the token, app_id, and wxid from the file stored in .storage."""
+        token_file_path = os.path.join(self.hass.config.path(".storage"), "gewe_token.json")
+        if os.path.exists(token_file_path):
+            try:
+                async with aiofiles.open(token_file_path, "r") as file:
+                    token_data = json.loads(await file.read())
+                    return token_data.get("token"), token_data.get("app_id"), token_data.get("wxid")
+            except Exception as e:
+                _LOGGER.error(f"Failed to read token from file: {e}")
+        return None, None, None
+ 
