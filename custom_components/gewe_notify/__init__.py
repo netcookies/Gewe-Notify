@@ -67,8 +67,7 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
 
     uuid = None
     qr_image_url = None
-    scaned_flag = False
-    option_flag = False
+    scaned_flag = True
     retries = 0
     # 从 config_entry 的 data 中提取之前保存的数据
     api_url = entry.data.get(CONF_API_URL)
@@ -82,7 +81,7 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
         await api.logout(token, app_id)
 
     # Step 2: 检查 QR Code 或登录状态
-    qr_data = await api.get_login_qr(self.token, self.app_id)
+    qr_data = await api.get_login_qr(token, app_id)
     if qr_data:
         app_id = qr_data["appId"]
         uuid = qr_data["uuid"]
@@ -92,7 +91,6 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
         qr_image_url = await api.save_qr_code_to_file(qr_code_base64)
         if qr_image_url:
             _LOGGER.debug(f"QR Code saved and accessible at: {qr_image_url}")
-            #return await self.async_step_confirm()
             scaned_flag = True
         else:
             _LOGGER.debug("QR code save failed.")
@@ -105,6 +103,7 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
         _LOGGER.debug(f"Checking login QR code: {qr_image_url}")
         login_data = await api.check_login(token, app_id, uuid)
         if login_data.get("loginInfo") and login_data["loginInfo"].get("wxid"):
+            scaned_flag = False
             nickname = login_data["nickName"]
             wxid = login_data["loginInfo"]["wxid"]
             await api.save_token_to_file(token, app_id, wxid)
@@ -116,7 +115,7 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
                 CONF_WXID: wxid
                 })
             # 更新 token
-            await hass.config_entries.async_update_entry(entry, data=config)
+            hass.config_entries.async_update_entry(entry, data=config)
             await hass.config_entries.async_reload(entry.entry_id)
             _LOGGER.debug("Update entry (options)!!")
             persistent_notification_data = {
@@ -128,8 +127,6 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
             await hass.services.async_call(
                 "persistent_notification", "create", persistent_notification_data
             )
-        else:
-            scaned_flag = False
         retries += 1
         await asyncio.sleep(5)
 
@@ -159,7 +156,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await fetch_contacts_formated_service(hass, entry, call)
 
     async def relogin_service_wrapper(call: ServiceCall):
-        await relogin_formated_service(hass, entry, call)
+        await relogin_service(hass, entry, call)
 
     # 注册自定义服务
     hass.services.async_register( DOMAIN, "fetch_contacts", fetch_contacts_service_wrapper)

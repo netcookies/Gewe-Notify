@@ -49,6 +49,10 @@
             "name": "获取联系人",
             "description": "获取通讯录数据, 并保存在.storage/gewe_contacts.json里。本操作为耗时操作,10分钟内重复执行只会更新一次,更新完成后会有通知。"
         },
+        "relogin": {
+            "name": "重新登录",
+            "description": "通过action触发重新登录，方便在手表上调用。"
+        },
         "notify": {
             "name": "发送通知",
             "description": "通过Gewe微信发送通知消息",
