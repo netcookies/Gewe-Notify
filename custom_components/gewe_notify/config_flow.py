@@ -77,7 +77,7 @@ class GeweConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     qr_code_base64 = qr_data["qrImgBase64"]
 
                     # 保存 QR Code
-                    self.qr_image_url = await self._save_qr_code_to_file(qr_code_base64)
+                    self.qr_image_url = await self.api.save_qr_code_to_file(qr_code_base64)
                     if self.qr_image_url:
                         _LOGGER.debug(f"QR Code saved and accessible at: {self.qr_image_url}")
                         return await self.async_step_confirm()
@@ -128,7 +128,7 @@ class GeweConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if login_data.get("loginInfo") and login_data["loginInfo"].get("wxid"):
                 nickname = login_data["nickName"]
                 self.wxid = login_data["loginInfo"]["wxid"]
-                await self._save_token_to_file(self.token, self.app_id, self.wxid)
+                await self.api.save_token_to_file(self.token, self.app_id, self.wxid)
                 if self.relogin_flag and self.reconfigure_flag:
                     # Update the existing config entry
                     current_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
@@ -309,7 +309,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 qr_code_base64 = qr_data["qrImgBase64"]
 
                 # 保存 QR Code
-                self.qr_image_url = await self._save_qr_code_to_file(qr_code_base64)
+                self.qr_image_url = await self.api.save_qr_code_to_file(qr_code_base64)
                 if self.qr_image_url:
                     _LOGGER.debug(f"QR Code saved and accessible at: {self.qr_image_url}")
                     #return await self.async_step_confirm()
@@ -332,7 +332,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             if login_data.get("loginInfo") and login_data["loginInfo"].get("wxid"):
                 nickname = login_data["nickName"]
                 self.wxid = login_data["loginInfo"]["wxid"]
-                await self._save_token_to_file(self.token, self.app_id, self.wxid)
+                await self.api.save_token_to_file(self.token, self.app_id, self.wxid)
                 # 更新配置后，重新加载集成
                 await self.hass.config_entries.async_reload(self.config_entry.entry_id)
                 _LOGGER.debug("Update entry (options)!!")
@@ -341,31 +341,3 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 self.scaned_flag = False
                 errors["base"] = "scan_qrcode_failed"
                 return await self.async_step_confirm()
-
-    async def _save_qr_code_to_file(self, qr_code_base64):
-        """Save QR code image to the www directory and return its URL."""
-        www_path = self.hass.config.path("www")
-        os.makedirs(www_path, exist_ok=True)
-        img_path = os.path.join(www_path, "gewe_qr_code.jpg")
-        random_number = random.randint(1000,9999)
-        try:
-            img_data = base64.b64decode(qr_code_base64.split(",", 1)[-1])
-            async with aiofiles.open(img_path, "wb") as file:
-                await file.write(img_data)
-            return f"/local/gewe_qr_code.jpg?v={random_number}"
-        except Exception as e:
-            _LOGGER.error(f"Failed to save QR code image: {e}")
-            return None
-
-    async def _save_token_to_file(self, token, app_id, wxid):
-        """Save the token, app_id, and wxid to a file in .storage."""
-        token_file_path = os.path.join(self.hass.config.path(".storage"), "gewe_token.json")
-        try:
-            async with aiofiles.open(token_file_path, "w") as file:
-                await file.write(json.dumps({
-                    "token": token,
-                    "app_id": app_id,
-                    "wxid": wxid
-                }))
-        except Exception as e:
-            _LOGGER.error(f"Failed to save token to file: {e}")

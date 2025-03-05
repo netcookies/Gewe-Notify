@@ -337,3 +337,31 @@ class GeweAPI:
             "friends": friends_result,
             "chatrooms": chatrooms_result
         }
+
+    async def save_qr_code_to_file(self, qr_code_base64):
+        """Save QR code image to the www directory and return its URL."""
+        www_path = self.hass.config.path("www")
+        os.makedirs(www_path, exist_ok=True)
+        img_path = os.path.join(www_path, "gewe_qr_code.jpg")
+        random_number = random.randint(1000,9999)
+        try:
+            img_data = base64.b64decode(qr_code_base64.split(",", 1)[-1])
+            async with aiofiles.open(img_path, "wb") as file:
+                await file.write(img_data)
+            return f"/local/gewe_qr_code.jpg?v={random_number}"
+        except Exception as e:
+            _LOGGER.error(f"Failed to save QR code image: {e}")
+            return None
+
+    async def save_token_to_file(self, token, app_id, wxid):
+        """Save the token, app_id, and wxid to a file in .storage."""
+        token_file_path = os.path.join(self.hass.config.path(".storage"), "gewe_token.json")
+        try:
+            async with aiofiles.open(token_file_path, "w") as file:
+                await file.write(json.dumps({
+                    "token": token,
+                    "app_id": app_id,
+                    "wxid": wxid
+                }))
+        except Exception as e:
+            _LOGGER.error(f"Failed to save token to file: {e}")
