@@ -256,7 +256,7 @@ class GeweConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
  
  # 处理选项流的类
 class OptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle options flow for Neta Vehicle Status configuration."""
+    """Handle options flow for component configuration."""
 
     def __init__(self):
         self.config = {}
