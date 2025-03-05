@@ -1,3 +1,18 @@
+# [](https://github.com/netcookies/Gewe-Notify/compare/v1.1.4...v) (2025-03-05)
+
+
+### Bug Fixes
+
+* config_flow.py typo ([2bda198](https://github.com/netcookies/Gewe-Notify/commit/2bda19897b75e93bc96dbe8c7e86f439894b46f5))
+
+
+### Features
+
+* added relogin action ([cd8195b](https://github.com/netcookies/Gewe-Notify/commit/cd8195bfa99873febc3a07ab847786d0aa98be14))
+* move save_qrcode and save_token to api.py ([adbddad](https://github.com/netcookies/Gewe-Notify/commit/adbddadd2a05b9de9dcaf3022344e23dbcff4c10))
+
+
+
 #  (2025-01-02)
 
 
