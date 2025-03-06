@@ -1,3 +1,12 @@
+# [](https://github.com/netcookies/Gewe-Notify/compare/v1.1.9...v) (2025-03-06)
+
+
+### Bug Fixes
+
+* action bugs ([4b1b3fc](https://github.com/netcookies/Gewe-Notify/commit/4b1b3fc991a0a6548b22f5d28938d78395bd192f))
+
+
+
 # [](https://github.com/netcookies/Gewe-Notify/compare/v1.1.8...v) (2025-03-06)
 
 
