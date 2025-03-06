@@ -92,7 +92,8 @@ async def get_qrcode_service(hass: HomeAssistant, entry: ConfigEntry, call: Serv
             return {
                     "code": 1,
                     "msg": f"successfulf.QR Code saved and accessible at: {qr_image_url}",
-                    "imgUrl": qr_image_url
+                    "imgUrl": qr_image_url,
+                     "uuid": uuid
                     }
         else:
             _LOGGER.debug("QR code save failed.")
@@ -109,7 +110,15 @@ async def get_qrcode_service(hass: HomeAssistant, entry: ConfigEntry, call: Serv
 
 async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall):
     """check login"""
-    scaned_flag = True
+    scaned_flag = True    
+    uuid = None
+    qr_image_url = None
+    # 从 config_entry 的 data 中提取之前保存的数据
+    api_url = entry.data.get(CONF_API_URL)
+    token = entry.data.get(CONF_GEWE_TOKEN)
+    app_id = entry.data.get(CONF_APP_ID)
+    wxid = entry.data.get(CONF_WXID)
+    api = hass.data[DOMAIN].get("api")
     retries = 0
     while scaned_flag and retries < 36:
         _LOGGER.debug(f"Checking login QR code.")
