@@ -113,9 +113,6 @@ async def login_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCa
     scaned_flag = True    
     uuid = call.data.get("uuid", None)
     qr_image_url = call.data.get("imgUrl", None)
-    if not uuid and not qr_image_url:
-        _LOGGER.debug(f"payload [ uuid: {uuid}, qr_image_url: {qr_image_url} ]" )
-        return False
     # 从 config_entry 的 data 中提取之前保存的数据
     api_url = entry.data.get(CONF_API_URL)
     token = entry.data.get(CONF_GEWE_TOKEN)
@@ -123,37 +120,39 @@ async def login_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCa
     wxid = entry.data.get(CONF_WXID)
     api = hass.data[DOMAIN].get("api")
     retries = 0
-    while scaned_flag and retries < 36:
-        _LOGGER.debug(f"Checking login QR code: {qr_image_url}.")
-        login_data = await api.check_login(token, app_id, uuid)
-        if login_data.get("loginInfo") and login_data["loginInfo"].get("wxid"):
-            scaned_flag = False
-            nickname = login_data["nickName"]
-            wxid = login_data["loginInfo"]["wxid"]
-            await api.save_token_to_file(token, app_id, wxid)
-            # 更新配置后，重新加载集成
-            config = dict(entry.data)
-            config.update({
-                CONF_GEWE_TOKEN: token,
-                CONF_APP_ID: app_id,
-                CONF_WXID: wxid
-                })
-            # 更新 token
-            hass.config_entries.async_update_entry(entry, data=config)
-            await hass.config_entries.async_reload(entry.entry_id)
-            _LOGGER.debug("Update entry (options)!!")
-            persistent_notification_data = {
-                "title": "Gewe 登录成功",
-                "message": f"您的账号{wxid}已登录成功。",
-                "notification_id": "gewe_notify_loggin_successful"
-            }
-            # 调用 Home Assistant 服务发送持久化通知
-            await hass.services.async_call(
-                "persistent_notification", "create", persistent_notification_data
-            )
-            return True
-        retries += 1
-        await asyncio.sleep(5)
+    if uuid and qr_image_url:
+        _LOGGER.debug(f"payload [ uuid: {uuid}, qr_image_url: {qr_image_url} ]" )
+        while scaned_flag and retries < 36:
+            _LOGGER.debug(f"Checking login QR code: {qr_image_url}.")
+            login_data = await api.check_login(token, app_id, uuid)
+            if login_data.get("loginInfo") and login_data["loginInfo"].get("wxid"):
+                scaned_flag = False
+                nickname = login_data["nickName"]
+                wxid = login_data["loginInfo"]["wxid"]
+                await api.save_token_to_file(token, app_id, wxid)
+                # 更新配置后，重新加载集成
+                config = dict(entry.data)
+                config.update({
+                    CONF_GEWE_TOKEN: token,
+                    CONF_APP_ID: app_id,
+                    CONF_WXID: wxid
+                    })
+                # 更新 token
+                hass.config_entries.async_update_entry(entry, data=config)
+                await hass.config_entries.async_reload(entry.entry_id)
+                _LOGGER.debug("Update entry (options)!!")
+                persistent_notification_data = {
+                    "title": "Gewe 登录成功",
+                    "message": f"您的账号{wxid}已登录成功。",
+                    "notification_id": "gewe_notify_loggin_successful"
+                }
+                # 调用 Home Assistant 服务发送持久化通知
+                await hass.services.async_call(
+                    "persistent_notification", "create", persistent_notification_data
+                )
+                return True
+            retries += 1
+            await asyncio.sleep(5)
     return False
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
