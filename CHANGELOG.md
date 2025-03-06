@@ -1,3 +1,12 @@
+# [](https://github.com/netcookies/Gewe-Notify/compare/v1.1.7...v) (2025-03-06)
+
+
+### Bug Fixes
+
+* typo ([d1fb8a0](https://github.com/netcookies/Gewe-Notify/commit/d1fb8a0c61d413576815d77b2f2847928e0c6b8e))
+
+
+
 # [](https://github.com/netcookies/Gewe-Notify/compare/v1.1.6...v) (2025-03-06)
 
 
