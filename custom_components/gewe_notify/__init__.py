@@ -112,7 +112,7 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
     scaned_flag = True
     retries = 0
     while scaned_flag and retries < 36:
-        _LOGGER.debug(f"Checking login QR code: {qr_image_url}")
+        _LOGGER.debug(f"Checking login QR code.")
         login_data = await api.check_login(token, app_id, uuid)
         if login_data.get("loginInfo") and login_data["loginInfo"].get("wxid"):
             scaned_flag = False
