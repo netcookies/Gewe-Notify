@@ -1,3 +1,12 @@
+# [](https://github.com/netcookies/Gewe-Notify/compare/v1.1.6...v) (2025-03-06)
+
+
+### Features
+
+* update get_qrcode action ([5b966a9](https://github.com/netcookies/Gewe-Notify/commit/5b966a9c8233dc3107b890b3afc192c6fc968956))
+
+
+
 # [](https://github.com/netcookies/Gewe-Notify/compare/v1.1.5...v) (2025-03-06)
 
 
