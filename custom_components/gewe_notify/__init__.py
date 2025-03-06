@@ -4,7 +4,7 @@ import json
 import asyncio
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import Platform, CONF_NAME
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers import discovery
 from .const import CONF_API_URL, DOMAIN, CONF_GEWE_TOKEN, CONF_APP_ID, CONF_WXID
@@ -62,7 +62,7 @@ async def fetch_contacts_formated_service(hass: HomeAssistant, entry: ConfigEntr
     except Exception as e:
         _LOGGER.error(f"Error in fetch_contacts_formated_service: {e}")
 
-async def get_qrcode_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall):
+async def get_qrcode_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall) -> dict:
     """get login qrcode"""
 
     uuid = None
@@ -92,13 +92,23 @@ async def get_qrcode_service(hass: HomeAssistant, entry: ConfigEntry, call: Serv
         if qr_image_url:
             _LOGGER.debug(f"QR Code saved and accessible at: {qr_image_url}")
             scaned_flag = True
-            return True
+            return {
+                    "code": 1,
+                    "msg": f"successfulf.QR Code saved and accessible at: {qr_image_url}",
+                    "imgUrl": qr_image_url
+                    }
         else:
             _LOGGER.debug("QR code save failed.")
-            return False
+            return { 
+                    "code": 0,
+                    "msg": "QR code save failed." 
+                    }
     else:
         _LOGGER.debug("QR code fetch failed.")
-        return False
+        return { 
+                "code": 0,
+                "msg": "QR code fetch failed." 
+                }
 
 async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall):
     """check login"""
@@ -164,13 +174,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def relogin_service_wrapper(call: ServiceCall):
         await relogin_service(hass, entry, call)
 
-    async def get_qrcode_service_wrapper(call: ServiceCall):
-        await get_qrcode_service(hass, entry, call)
+    async def get_qrcode_service_wrapper(call: ServiceCall) -> ServiceResponse:
+        """Wraps the get_qrcode_service and ensures a response is returned."""
+        response = await get_qrcode_service(hass, entry, call)
+        
+        # 确保返回 ServiceResponse 或类似对象
+        if response:
+            return response
+        else:
+            return {"code": 0, "msg": "No response from get_qrcode_service"}
+
 
     # 注册自定义服务
     hass.services.async_register( DOMAIN, "fetch_contacts", fetch_contacts_service_wrapper)
     hass.services.async_register( DOMAIN, "relogin", relogin_service_wrapper)
-    hass.services.async_register( DOMAIN, "get_qrcode", get_qrcode_service_wrapper)
+    hass.services.async_register( DOMAIN, "get_qrcode", get_qrcode_service_wrapper, supports_response=SupportsResponse.OPTIONAL)
     _LOGGER.debug("Action of Gewe Notify regeisted.")
 
     # Notify doesn't support config entry setup yet, load with discovery for now
@@ -219,3 +237,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop("api_view", None)
 
     return unload_ok
+
