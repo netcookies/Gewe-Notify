@@ -62,8 +62,8 @@ async def fetch_contacts_formated_service(hass: HomeAssistant, entry: ConfigEntr
     except Exception as e:
         _LOGGER.error(f"Error in fetch_contacts_formated_service: {e}")
 
-async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall):
-    """same function of option flow"""
+async def get_qrcode_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall):
+    """get login qrcode"""
 
     uuid = None
     qr_image_url = None
@@ -92,6 +92,7 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
         if qr_image_url:
             _LOGGER.debug(f"QR Code saved and accessible at: {qr_image_url}")
             scaned_flag = True
+            return True
         else:
             _LOGGER.debug("QR code save failed.")
             return False
@@ -99,6 +100,9 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
         _LOGGER.debug("QR code fetch failed.")
         return False
 
+async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall):
+    """check login"""
+    scaned_flag = True
     while scaned_flag and retries < 36:
         _LOGGER.debug(f"Checking login QR code: {qr_image_url}")
         login_data = await api.check_login(token, app_id, uuid)
@@ -127,8 +131,10 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
             await hass.services.async_call(
                 "persistent_notification", "create", persistent_notification_data
             )
+            return True
         retries += 1
         await asyncio.sleep(5)
+    return False
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Gewe Notify integration as a config entry."""
@@ -158,9 +164,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def relogin_service_wrapper(call: ServiceCall):
         await relogin_service(hass, entry, call)
 
+    async def get_qrcode_service_wrapper(call: ServiceCall):
+        await get_qrcode_service(hass, entry, call)
+
     # 注册自定义服务
     hass.services.async_register( DOMAIN, "fetch_contacts", fetch_contacts_service_wrapper)
     hass.services.async_register( DOMAIN, "relogin", relogin_service_wrapper)
+    hass.services.async_register( DOMAIN, "get_qrcode", get_qrcode_service_wrapper)
     _LOGGER.debug("Action of Gewe Notify regeisted.")
 
     # Notify doesn't support config entry setup yet, load with discovery for now
@@ -198,6 +208,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # 取消注册服务
     hass.services.async_remove(DOMAIN, "fetch_contacts")
     hass.services.async_remove(DOMAIN, "relogin")
+    hass.services.async_remove(DOMAIN, "get_qrcode")
 
     # 卸载非 NOTIFY 平台
     unload_ok = await hass.config_entries.async_unload_platforms(
