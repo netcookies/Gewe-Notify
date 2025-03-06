@@ -12,3 +12,14 @@ notify:
     target:
       description: "接收消息的用户ID或群组ID。只接收一个人作为接收人,接收人的Id可以在.storage/gewe_contacts.json里找。"
       example: "wxid_xxxxxxxx"
+
+get_qrcode:
+  description: "获取二维码。通过前端调用的话，uuid、imgUrl可在日志查看。"
+
+login:
+  description: "扫描二维码并确认后执行登录动作。"
+  fields:
+    uuid:
+      description: "传入二维码的uuid。"
+    imgUrl:
+      description: "传入二维码的url地址（不包含schema和域名部分，比如http://192.168.0.2:8123不用包含）。"

@@ -88,12 +88,12 @@ async def get_qrcode_service(hass: HomeAssistant, entry: ConfigEntry, call: Serv
         # 保存 QR Code
         qr_image_url = await api.save_qr_code_to_file(qr_code_base64)
         if qr_image_url:
-            _LOGGER.debug(f"QR Code saved and accessible at: {qr_image_url}")
+            _LOGGER.info(f"QR Code [ uuid: {uuid} ] saved and accessible at: {qr_image_url}")
             return {
                     "code": 1,
-                    "msg": f"successfulf.QR Code saved and accessible at: {qr_image_url}",
+                    "msg": f"successful. QR Code [ uuid: {uuid} ] saved and accessible at: {qr_image_url}",
                     "imgUrl": qr_image_url,
-                     "uuid": uuid
+                    "uuid": uuid
                     }
         else:
             _LOGGER.debug("QR code save failed.")
@@ -108,11 +108,14 @@ async def get_qrcode_service(hass: HomeAssistant, entry: ConfigEntry, call: Serv
                 "msg": "QR code fetch failed." 
                 }
 
-async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall):
-    """check login"""
+async def login_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCall):
+    """do login"""
     scaned_flag = True    
-    uuid = None
-    qr_image_url = None
+    uuid = call.data.get("uuid", None)
+    qr_image_url = call.data.get("imgUrl", None)
+    if not uuid and not qr_image_url:
+        _LOGGER.debug(f"payload [ uuid: {uuid}, qr_image_url: {qr_image_url} ]" )
+        return False
     # 从 config_entry 的 data 中提取之前保存的数据
     api_url = entry.data.get(CONF_API_URL)
     token = entry.data.get(CONF_GEWE_TOKEN)
@@ -121,7 +124,7 @@ async def relogin_service(hass: HomeAssistant, entry: ConfigEntry, call: Service
     api = hass.data[DOMAIN].get("api")
     retries = 0
     while scaned_flag and retries < 36:
-        _LOGGER.debug(f"Checking login QR code.")
+        _LOGGER.debug(f"Checking login QR code: {qr_image_url}.")
         login_data = await api.check_login(token, app_id, uuid)
         if login_data.get("loginInfo") and login_data["loginInfo"].get("wxid"):
             scaned_flag = False
@@ -178,8 +181,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def fetch_contacts_service_wrapper(call: ServiceCall):
         await fetch_contacts_formated_service(hass, entry, call)
 
-    async def relogin_service_wrapper(call: ServiceCall):
-        await relogin_service(hass, entry, call)
+    async def login_service_wrapper(call: ServiceCall):
+        await login_service(hass, entry, call)
 
     async def get_qrcode_service_wrapper(call: ServiceCall) -> ServiceResponse:
         """Wraps the get_qrcode_service and ensures a response is returned."""
@@ -194,7 +197,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # 注册自定义服务
     hass.services.async_register( DOMAIN, "fetch_contacts", fetch_contacts_service_wrapper)
-    hass.services.async_register( DOMAIN, "relogin", relogin_service_wrapper)
+    hass.services.async_register( DOMAIN, "login", login_service_wrapper)
     hass.services.async_register( DOMAIN, "get_qrcode", get_qrcode_service_wrapper, supports_response=SupportsResponse.OPTIONAL)
     _LOGGER.debug("Action of Gewe Notify regeisted.")
 
@@ -232,7 +235,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # 取消注册服务
     hass.services.async_remove(DOMAIN, "fetch_contacts")
-    hass.services.async_remove(DOMAIN, "relogin")
+    hass.services.async_remove(DOMAIN, "login")
     hass.services.async_remove(DOMAIN, "get_qrcode")
 
     # 卸载非 NOTIFY 平台

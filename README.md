@@ -51,7 +51,7 @@ Gewe-Notify 插件需要配合 **Gewechat** 后端 API 使用。请按照以下�
 # 假设你的容器 ip是192.168.0.2
 http://192.168.0.2:2531
 ```
-3. 首次运行请执行 **Action --> gewe.fetch_contacts**, 可搭配`https://github.com/netcookies/gewe-notify-card`卡片查找target值
+3. 首次运行请执行 **Action --> gewe_notify.fetch_contacts**, 可搭配`https://github.com/netcookies/gewe-notify-card`卡片查找target值
 4. 在 Action 中找到**notify.gewe_notify**填入target, 默认消息类型是文本(text), message是必填字段, 但仅在文本类型时有效, 其他类型时请随意填写, 不为空就行, 支持的消息类型见下表。ex:
 ```
 action: notify.gewe_notify
@@ -73,6 +73,24 @@ data:
 | `voice`    | `voice_url`，`voice_duration`                                  | 发送语音消息。`voice_duration` 是语音消息的时长，单位为秒。                                       |
 | `video`    | `video_url`，`video_duration`，`thumb_url`                     | 发送视频消息。`video_duration` 是视频的时长，`thumb_url` 是视频的缩略图 URL。                     |
 | `link`     | `link_url`，`title`，`desc`，`thumb_url`                       | 发送链接消息。`title` 是链接的标题，`desc` 是描述，`thumb_url` 是缩略图 URL。                      |
+
+### 支持的实体、动作和其他功能
+
+1. `sensor.gewe_notify_online_status` 显示微信在线状态，**True** 为在线，**False**为离线。
+2. `action: gewe_notify.get_qrcode` 可手动调用获取登录的二维码，日志会打印当前二维码的url地址和uuid。**注意：获取二维码会退出当前账号**。
+3. `action: gewe_notify.login` 在手机上执行完扫描二维码后调用，需要传入payload参数：uuid、imgUrl，这两个参数可以从上个action获取。
+```
+action: gewe_notify.login
+data:
+  uuid: abcdefghijklmn
+  imgUrl: /local/gewe_qr_code.jpg?v=1234
+```
+
+### 在AppleWatch或其他设备上执行重新登录
+
+1. 执行**http_post**调用`action: gewe_notify.get_qrcode`，ex：`http://your_ha_server_ip:port/api/services/gewe_notify/get_qrcode?return_response`
+2. 从步骤1获取返回值uuid、imgUrl作为**post**或action参数，调用`action: gewe_notify.login`, ex: `http://your_ha_server_ip:port/api/services/gewe_notify/login`
+
 
 ## 贡献指南
 

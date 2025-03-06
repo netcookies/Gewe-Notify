@@ -51,11 +51,21 @@
         },
         "get_qrcode": {
             "name": "获取二维码",
-            "description": "通过action触发获取二维码，方便在手表上调用。"
+            "description": "获取二维码。通过前端调用的话，uuid、imgUrl可在日志查看。"
         },
-        "relogin": {
-            "name": "重新登录",
-            "description": "通过action触发重新登录，方便在手表上调用。"
+        "login": {
+            "name": "执行登录",
+            "description": "扫描二维码并确认后执行登录动作。",
+            "fields": {
+                "uuid": {
+                    "name": "二维码的uuid（必填）",
+                    "description": "传入二维码的uuid。"
+                },
+                "imgUrl": {
+                    "name": "二维码的url（必填）",
+                    "description": "传入二维码的url地址（不包含schema和域名部分，比如http://192.168.0.2:8123不用包含）。"
+                }
+            }
         },
         "notify": {
             "name": "发送通知",
