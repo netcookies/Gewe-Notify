@@ -1,3 +1,7 @@
+# [](https://github.com/netcookies/Gewe-Notify/compare/v1.1.8...v) (2025-03-06)
+
+
+
 # [](https://github.com/netcookies/Gewe-Notify/compare/v1.1.7...v) (2025-03-06)
 
 
