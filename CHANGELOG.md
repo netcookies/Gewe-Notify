@@ -1,3 +1,12 @@
+# [](https://github.com/netcookies/Gewe-Notify/compare/v1.2.1...v) (2025-03-07)
+
+
+### Bug Fixes
+
+* validate ([5937fdd](https://github.com/netcookies/Gewe-Notify/commit/5937fdd249724a2045c13c3defd9b1cbfe3cafa8))
+
+
+
 # [](https://github.com/netcookies/Gewe-Notify/compare/v1.2.0...v) (2025-03-06)
 
 
