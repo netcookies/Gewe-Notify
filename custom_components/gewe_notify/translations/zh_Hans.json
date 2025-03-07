@@ -51,7 +51,7 @@
         },
         "get_qrcode": {
             "name": "获取二维码",
-            "description": "获取二维码。通过前端调用的话，uuid、imgUrl可在日志查看。"
+            "description": "获取二维码。通过前端调用的话，uuid、img_url可在日志查看。"
         },
         "login": {
             "name": "执行登录",
@@ -61,7 +61,7 @@
                     "name": "二维码的uuid（必填）",
                     "description": "传入二维码的uuid。"
                 },
-                "imgUrl": {
+                "img_url": {
                     "name": "二维码的url（必填）",
                     "description": "传入二维码的url地址（不包含schema和域名部分，比如http://192.168.0.2:8123不用包含）。"
                 }

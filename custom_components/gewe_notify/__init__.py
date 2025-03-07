@@ -92,7 +92,7 @@ async def get_qrcode_service(hass: HomeAssistant, entry: ConfigEntry, call: Serv
             return {
                     "code": 1,
                     "msg": f"successful. QR Code [ uuid: {uuid} ] saved and accessible at: {qr_image_url}",
-                    "imgUrl": qr_image_url,
+                    "img_url": qr_image_url,
                     "uuid": uuid
                     }
         else:
@@ -112,7 +112,7 @@ async def login_service(hass: HomeAssistant, entry: ConfigEntry, call: ServiceCa
     """do login"""
     scaned_flag = True    
     uuid = call.data.get("uuid", None)
-    qr_image_url = call.data.get("imgUrl", None)
+    qr_image_url = call.data.get("img_url", None)
     # 从 config_entry 的 data 中提取之前保存的数据
     api_url = entry.data.get(CONF_API_URL)
     token = entry.data.get(CONF_GEWE_TOKEN)

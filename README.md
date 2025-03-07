@@ -78,18 +78,19 @@ data:
 
 1. `sensor.gewe_notify_online_status` 显示微信在线状态，**True** 为在线，**False**为离线。
 2. `action: gewe_notify.get_qrcode` 可手动调用获取登录的二维码，日志会打印当前二维码的url地址和uuid。**注意：获取二维码会退出当前账号**。
-3. `action: gewe_notify.login` 在手机上执行完扫描二维码后调用，需要传入payload参数：uuid、imgUrl，这两个参数可以从上个action获取。
+3. `action: gewe_notify.login` 在手机上执行完扫描二维码后调用，需要传入payload参数：uuid、img_url，这两个参数可以从上个action获取。
 ```
 action: gewe_notify.login
 data:
   uuid: abcdefghijklmn
-  imgUrl: /local/gewe_qr_code.jpg?v=1234
+  img_url: /local/gewe_qr_code.jpg?v=1234
 ```
 
 ### 在AppleWatch或其他设备上执行重新登录
 
 1. 执行**http_post**调用`action: gewe_notify.get_qrcode`，ex：`http://your_ha_server_ip:port/api/services/gewe_notify/get_qrcode?return_response`
-2. 从步骤1获取返回值uuid、imgUrl作为**post**或action参数，调用`action: gewe_notify.login`, ex: `http://your_ha_server_ip:port/api/services/gewe_notify/login`
+2. 从步骤1获取返回值uuid、img_url作为**post**或action参数，调用`action: gewe_notify.login`, ex: `http://your_ha_server_ip:port/api/services/gewe_notify/login`
+3. ios 可以直接导入这个shortcuts `https://www.icloud.com/shortcuts/ed3f146607c0474693f29f32dd7fcd08`
 
 
 ## 贡献指南
