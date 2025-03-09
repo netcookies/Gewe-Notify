@@ -1,3 +1,12 @@
+# [](https://github.com/netcookies/Gewe-Notify/compare/v1.2.2...v) (2025-03-09)
+
+
+### Bug Fixes
+
+* sometimes token in discovery info not updated ([0c5b07f](https://github.com/netcookies/Gewe-Notify/commit/0c5b07ff95a1aad66d643946154a5438c2b66fc3))
+
+
+
 # [](https://github.com/netcookies/Gewe-Notify/compare/v1.2.1...v) (2025-03-07)
 
 
