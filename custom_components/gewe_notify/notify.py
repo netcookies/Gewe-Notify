@@ -9,11 +9,12 @@ _LOGGER = logging.getLogger(__name__)
 class GeweNotifyService(BaseNotificationService):
     """Notification service for Gewe Notify."""
 
-    def __init__(self, hass, token, app_id):
+    def __init__(self, hass):
         """Initialize the notification service."""
         self.hass = hass
-        self.token = token
-        self.appid = app_id
+        self.token = None
+        self.appid = None
+        self.wxid = None
         try:
             self.api = hass.data[DOMAIN]["api"]
         except KeyError:
@@ -28,6 +29,7 @@ class GeweNotifyService(BaseNotificationService):
             return
 
         to_wxid = targets[0]  # 如果只支持单个目标，可以直接取第一个
+        self.token, self.appid, self.wxid = await self.api.get_token_from_file()
         _LOGGER.debug(f"Sending message to target: {to_wxid}")
         _LOGGER.debug(f"Read token: {self.token} appId: {self.appid}.")
 
@@ -74,9 +76,5 @@ async def async_get_service(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> GeweNotifyService | None:
     """Get the Gewe notify service."""
-    if discovery_info is None:
-        return
-    token = discovery_info[CONF_GEWE_TOKEN]
-    app_id = discovery_info[CONF_APP_ID]
-    return GeweNotifyService(hass, token, app_id)
+    return GeweNotifyService(hass)
 
